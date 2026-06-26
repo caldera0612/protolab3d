@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon16.png" />
+  <link rel="shortcut icon" href="../images/favicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galería — ProtoLab3D</title>
+  <meta name="description" content="Proyectos realizados por ProtoLab3D. Impresión 3D en Guadalajara — piezas funcionales, decorativas, llaveros y modelado CAD." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="../css/style.min.css" />
+  <style>
+
+    .page-hero {
+      padding: 8rem 2rem 4rem;
+      background: var(--dark-2);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      top: -100px; right: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(26,111,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .page-hero-inner { max-width: 1200px; margin: 0 auto; }
+
+    .page-hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .page-hero h1 span { color: var(--blue); }
+    .page-hero p { color: var(--text-muted); font-size: 1.05rem; max-width: 540px; }
+
+    /* FILTER TABS */
+    .filter-section {
+      background: var(--dark);
+      padding: 2.5rem 2rem 0;
+    }
+
+    .filter-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.55rem 1.1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .filter-btn:hover {
+      color: var(--white);
+      border-color: var(--blue);
+    }
+
+    .filter-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: var(--white);
+    }
+
+    /* GALLERY GRID */
+    .gallery-section {
+      background: var(--dark);
+      padding: 3rem 2rem 5rem;
+    }
+
+    .gallery-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .gallery-item {
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all var(--transition);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .gallery-item:hover {
+      border-color: var(--blue);
+      box-shadow: 0 8px 40px var(--blue-glow);
+      transform: translateY(-4px);
+    }
+
+    .gallery-item.hidden {
+      display: none;
+    }
+
+    .gallery-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .gallery-item:hover .gallery-img {
+      transform: scale(1.04);
+    }
+
+    .gallery-info {
+      padding: 1.25rem;
+    }
+
+    .gallery-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 0.4rem;
+    }
+
+    .gallery-tag.decorativo { color: #A78BFA; }
+    .gallery-tag.mecanico { color: var(--green); }
+    .gallery-tag.multicolor { color: #F472B6; }
+
+    .gallery-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+    }
+
+    .gallery-desc {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .gallery-mat {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(26,111,255,0.08);
+      border: 1px solid rgba(26,111,255,0.18);
+      border-radius: 4px;
+      padding: 0.2rem 0.6rem;
+      color: var(--blue-light);
+    }
+
+    /* LIGHTBOX */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox-img {
+      max-width: 90vw;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 1.4rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+    }
+
+    .lightbox-close:hover {
+      border-color: var(--blue);
+      color: var(--white);
+    }
+
+    .lightbox-info {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15,18,24,0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.75rem;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .lightbox-info h3 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.2rem;
+    }
+
+    .lightbox-info p {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    /* NAV ARROWS */
+    .lightbox-prev, .lightbox-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 1.2rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+    }
+
+    .lightbox-prev { left: 1.5rem; }
+    .lightbox-next { right: 1.5rem; }
+
+    .lightbox-prev:hover, .lightbox-next:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* CTA */
+    .gallery-cta {
+      background: var(--dark-2);
+      padding: 4rem 2rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    .gallery-cta h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.75rem;
+    }
+
+    .gallery-cta h2 span { color: var(--blue); }
+    .gallery-cta p { color: var(--text-muted); margin-bottom: 2rem; }
+
+    /* REVEAL */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+      .gallery-grid { grid-template-columns: 1fr; }
+      .lightbox-prev, .lightbox-next { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="../index.html" class="navbar-logo">
+      <img src="../images/logo.webp" alt="ProtoLab3D Logo" />
+      <span>Proto<em>Lab3D</em></span>
+    </a>
+    <ul class="navbar-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="servicios.html">Servicios</a></li>
+      <li><a href="materiales.html">Materiales</a></li>
+      <li><a href="costos.html">Costos</a></li>
+      <li><a href="galeria.html" class="active">Galería</a></li>
+      <li><a href="contacto.html">Contacto</a></li>
+      <li><a href="contacto.html" class="navbar-cta">Cotizar</a></li>
+    </ul>
+    <button class="hamburger" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <p class="section-label">// Galería</p>
+      <h1>Nuestros <span>proyectos</span></h1>
+      <p>Piezas funcionales, prototipos, diseños decorativos y más. Cada proyecto es único.</p>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-section">
+    <div class="filter-inner">
+      <button class="filter-btn active" data-filter="all">Todos</button>
+      <button class="filter-btn" data-filter="funcional">Piezas Funcionales</button>
+      <button class="filter-btn" data-filter="decorativo">Decorativo</button>
+      <button class="filter-btn" data-filter="mecanico">Mecánico / CAD</button>
+      <button class="filter-btn" data-filter="multicolor">Multicolor</button>
+    </div>
+  </div>
+
+  <!-- GALLERY -->
+  <section class="gallery-section">
+    <div class="gallery-inner">
+      <div class="gallery-grid">
+
+        <!-- 1 Tarjetero low poly -->
+        <div class="gallery-item reveal" data-category="funcional"
+             data-title="Base para Batería 48V" data-desc="Base de soporte estructural para batería de 48V. Pieza funcional en ABS negro." data-img="../images/galeria1.webp">
+          <img loading="lazy" class="gallery-img" src="../images/galeria1.webp" alt="Tarjetero Low Poly" />
+          <div class="gallery-info">
+            <div class="gallery-tag mecanico">Pieza Funcional</div>
+            <div class="gallery-title">Base para Batería 48V</div>
+            <div class="gallery-desc">Soporte estructural a medida para batería de 48V en ABS negro.</div>
+            <div class="gallery-mat">ABS</div>
+          </div>
+        </div>
+
+        <!-- 2 Base mecánica con soporte circular -->
+        <div class="gallery-item reveal" data-category="mecanico"
+             data-title="Base Mecánica con Soporte" data-desc="Pieza funcional con base circular y soportes laterales. Proyecto de ingeniería." data-img="../images/galeria2.webp">
+          <img loading="lazy" class="gallery-img" src="../images/galeria2.webp" alt="Base mecánica" />
+          <div class="gallery-info">
+            <div class="gallery-tag mecanico">Mecánico / CAD</div>
+            <div class="gallery-title">Base Mecánica con Soporte</div>
+            <div class="gallery-desc">Soporte estructural con base circular y laterales perforados. Proyecto de ingeniería.</div>
+            <div class="gallery-mat">ABS</div>
+          </div>
+        </div>
+
+        <!-- 3 Dragón decorativo -->
+        <div class="gallery-item reveal" data-category="decorativo"
+             data-title="Dragón Decorativo" data-desc="Figura decorativa en PLA azul con textura detallada." data-img="../images/galeria3.webp">
+          <img loading="lazy" class="gallery-img" src="../images/galeria3.webp" alt="Dragón decorativo" />
+          <div class="gallery-info">
+            <div class="gallery-tag decorativo">Decorativo</div>
+            <div class="gallery-title">Dragón Decorativo</div>
+            <div class="gallery-desc">Figura decorativa impresa en PLA azul con alto nivel de detalle en textura.</div>
+            <div class="gallery-mat">PLA</div>
+          </div>
+        </div>
+
+        <!-- 4 Base con postes -->
+        <div class="gallery-item reveal" data-category="funcional"
+             data-title="Base con Postes de Sujeción" data-desc="Pieza funcional con postes y sistema de deslizamiento." data-img="../images/galeria4.webp">
+          <img loading="lazy" class="gallery-img" src="../images/galeria4.webp" alt="Base con postes" />
+          <div class="gallery-info">
+            <div class="gallery-tag">Pieza Funcional</div>
+            <div class="gallery-title">Base con Postes de Sujeción</div>
+            <div class="gallery-desc">Base cuadrada con postes y ranura de deslizamiento. Pieza funcional de ensamble.</div>
+            <div class="gallery-mat">ABS</div>
+          </div>
+        </div>
+
+        <!-- 5 Bisagra / articulación -->
+        <div class="gallery-item reveal" data-category="mecanico"
+             data-title="Bisagra Articulada" data-desc="Pieza mecánica con articulación funcional impresa en una sola pieza." data-img="../images/galeria5.webp">
+          <img loading="lazy" class="gallery-img" src="../images/galeria5.webp" alt="Bisagra articulada" />
+          <div class="gallery-info">
+            <div class="gallery-tag mecanico">Mecánico / CAD</div>
+            <div class="gallery-title">Bisagra Articulada</div>
+            <div class="gallery-desc">Articulación mecánica de precisión con eje integrado. Diseño CAD personalizado.</div>
+            <div class="gallery-mat">ABS</div>
+          </div>
+        </div>
+
+        <!-- 6 Adaptadores -->
+        <div class="gallery-item reveal" data-category="mecanico"
+             data-title="Adaptadores de Montaje" data-desc="Set de adaptadores circular y cuadrado con orificios de montaje." data-img="../images/galeria6.webp">
+          <img loading="lazy" class="gallery-img" src="../images/galeria6.webp" alt="Adaptadores de montaje" />
+          <div class="gallery-info">
+            <div class="gallery-tag mecanico">Mecánico / CAD</div>
+            <div class="gallery-title">Adaptadores de Montaje</div>
+            <div class="gallery-desc">Set de adaptadores circular y cuadrado con orificios de montaje a medida.</div>
+            <div class="gallery-mat">PETG</div>
+          </div>
+        </div>
+
+        <!-- 7 Logo TikTok multicolor -->
+        <div class="gallery-item reveal" data-category="multicolor decorativo"
+             data-title="Logo TikTok Multicolor" data-desc="Modelado decorativo 3D en multicolor. Logo personalizado con base y nombre." data-img="../images/galeria7.webp">
+          <img loading="lazy" class="gallery-img" src="../images/galeria7.webp" alt="Logo TikTok multicolor" />
+          <div class="gallery-info">
+            <div class="gallery-tag multicolor">Multicolor · Decorativo</div>
+            <div class="gallery-title">Logo TikTok Multicolor</div>
+            <div class="gallery-desc">Modelado y diseño decorativo 3D en tres colores con base y texto personalizado.</div>
+            <div class="gallery-mat">PLA Multicolor</div>
+          </div>
+        </div>
+
+        <!-- 8 Adaptador cónico -->
+        <div class="gallery-item reveal" data-category="funcional"
+             data-title="Adaptador Cónico / Reductor" data-desc="Reductor cónico de diámetro impreso en PETG negro. Pieza funcional." data-img="../images/galeria8.webp">
+          <img loading="lazy" class="gallery-img" src="../images/galeria8.webp" alt="Adaptador cónico" />
+          <div class="gallery-info">
+            <div class="gallery-tag">Pieza Funcional</div>
+            <div class="gallery-title">Adaptador Cónico / Reductor</div>
+            <div class="gallery-desc">Reductor cónico de diámetro en PETG negro. Pieza funcional con acabado liso.</div>
+            <div class="gallery-mat">PETG</div>
+          </div>
+        </div>
+
+
+        <!-- 9 Tarjetero Low Poly -->
+        <div class="gallery-item reveal" data-category="decorativo"
+             data-title="Tarjeteros Low Poly" data-desc="Par de tarjeteros con diseño geométrico low poly. Impresos en PLA rojo y azul." data-img="../images/galeria9.webp">
+          <img loading="lazy" class="gallery-img" src="../images/galeria9.webp" alt="Tarjeteros Low Poly" />
+          <div class="gallery-info">
+            <div class="gallery-tag decorativo">Decorativo</div>
+            <div class="gallery-title">Tarjeteros Low Poly</div>
+            <div class="gallery-desc">Par de tarjeteros con diseño geométrico low poly en PLA rojo y azul. Recién salidos de la impresora.</div>
+            <div class="gallery-mat">PLA</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">✕</button>
+    <button class="lightbox-prev" id="lightboxPrev">‹</button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+    <button class="lightbox-next" id="lightboxNext">›</button>
+    <div class="lightbox-info">
+      <h3 id="lightboxTitle"></h3>
+      <p id="lightboxDesc"></p>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="gallery-cta">
+    <h2>¿Quieres algo <span>así?</span></h2>
+    <p>Mándanos tu archivo o cuéntanos tu idea — te cotizamos sin compromiso.</p>
+    <a href="https://wa.me/523141184585?text=Hola%20Emilio%2C%20vi%20su%20galería%20y%20quiero%20cotizar%20un%20proyecto"
+       target="_blank" class="btn btn-whatsapp">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.852L.057 23.714c-.066.254.12.504.38.436l6.077-1.587A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.83 9.83 0 01-5.018-1.374l-.36-.214-3.733.976.997-3.638-.234-.374A9.822 9.822 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+      Cotizar mi proyecto
+    </a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="../images/logo.webp" alt="ProtoLab3D" />
+          <span>Proto<em>Lab3D</em></span>
+        </div>
+        <p>Impresión 3D profesional en Guadalajara, Jalisco. Prototipos, piezas funcionales y diseños personalizados. Enviamos a toda la República Mexicana.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Páginas</h4>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="servicios.html">Servicios</a></li>
+          <li><a href="materiales.html">Materiales</a></li>
+          <li><a href="costos.html">Costos</a></li>
+          <li><a href="galeria.html">Galería</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="https://wa.me/523141184585" target="_blank">WhatsApp</a></li>
+          <li><a href="mailto:calderaperez0612@gmail.com">calderaperez0612@gmail.com</a></li>
+          <li><a href="https://instagram.com/protolab3d_gdl" target="_blank">@protolab3d_gdl</a></li>
+          <li><a href="#">Guadalajara, Jalisco · Envíos a todo México</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 ProtoLab3D · Guadalajara, México</p>
+      <div class="social-links">
+        <a href="https://instagram.com/protolab3d_gdl" target="_blank">Instagram</a>
+        <a href="https://wa.me/523141184585" target="_blank">WhatsApp</a>
+        <a href="mailto:calderaperez0612@gmail.com">Email</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL COTIZAR -->
+  <div class="modal-overlay" id="cotizarModal">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">✕</button>
+      <p class="modal-label">// Cotizar</p>
+      <h2 class="modal-title">¿Cómo quieres <span>cotizar?</span></h2>
+      <p class="modal-sub">Elige la opción que más te convenga. Te respondemos rápido.</p>
+
+      <a href="https://wa.me/523141184585?text=Hola%20Emilio%2C%20quiero%20cotizar%20una%20impresión%203D"
+         target="_blank" class="modal-wa">
+        <div class="modal-wa-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.852L.057 23.714c-.066.254.12.504.38.436l6.077-1.587A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.83 9.83 0 01-5.018-1.374l-.36-.214-3.733.976.997-3.638-.234-.374A9.822 9.822 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+        </div>
+        <div class="modal-wa-text">
+          <div class="top">WhatsApp — Más rápido</div>
+          <div class="num">WhatsApp</div>
+        </div>
+      </a>
+
+      <div class="modal-options">
+        <a href="https://instagram.com/protolab3d_gdl" target="_blank" class="modal-opt">
+          <span class="opt-icon">📸</span>
+          <div class="opt-info">
+            <div class="opt-label">Instagram</div>
+            <div class="opt-val">@protolab3d_gdl</div>
+          </div>
+        </a>
+        <a href="https://facebook.com/ProtoLab3D" target="_blank" class="modal-opt">
+          <span class="opt-icon">💬</span>
+          <div class="opt-info">
+            <div class="opt-label">Facebook</div>
+            <div class="opt-val">ProtoLab3D</div>
+          </div>
+        </a>
+        <a href="mailto:calderaperez0612@gmail.com" class="modal-opt" style="grid-column: span 2;">
+          <span class="opt-icon">✉️</span>
+          <div class="opt-info">
+            <div class="opt-label">Email</div>
+            <div class="opt-val">calderaperez0612@gmail.com</div>
+          </div>
+        </a>
+      </div>
+
+      <a href="https://forms.gle/Xs6JxHCM1BN11jwV8" target="_blank" class="modal-form-btn">
+        📋 Llenar formulario de cotización
+      </a>
+    </div>
+  </div>
+
+
+  <script src="../js/main.js"></script>
+  <script>
+    // FILTER
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const items = document.querySelectorAll('.gallery-item');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        items.forEach(item => {
+          const cats = item.dataset.category || '';
+          if (filter === 'all' || cats.includes(filter)) {
+            item.classList.remove('hidden');
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // LIGHTBOX
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxTitle = document.getElementById('lightboxTitle');
+    const lightboxDesc = document.getElementById('lightboxDesc');
+
+    let currentIndex = 0;
+    const visibleItems = () => [...items].filter(i => !i.classList.contains('hidden'));
+
+    items.forEach((item, idx) => {
+      item.addEventListener('click', () => {
+        currentIndex = visibleItems().indexOf(item);
+        openLightbox(item);
+      });
+    });
+
+    function openLightbox(item) {
+      lightboxImg.src = item.dataset.img;
+      lightboxTitle.textContent = item.dataset.title;
+      lightboxDesc.textContent = item.dataset.desc;
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    document.getElementById('lightboxClose').addEventListener('click', () => {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        lightbox.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+
+    document.getElementById('lightboxNext').addEventListener('click', () => {
+      const visible = visibleItems();
+      currentIndex = (currentIndex + 1) % visible.length;
+      openLightbox(visible[currentIndex]);
+    });
+
+    document.getElementById('lightboxPrev').addEventListener('click', () => {
+      const visible = visibleItems();
+      currentIndex = (currentIndex - 1 + visible.length) % visible.length;
+      openLightbox(visible[currentIndex]);
+    });
+
+    // Keyboard nav
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox.classList.contains('open')) return;
+      if (e.key === 'Escape') { lightbox.classList.remove('open'); document.body.style.overflow = ''; }
+      if (e.key === 'ArrowRight') document.getElementById('lightboxNext').click();
+      if (e.key === 'ArrowLeft') document.getElementById('lightboxPrev').click();
+    });
+  </script>
+  <script>
+    // MODAL COTIZAR
+    const modal = document.getElementById("cotizarModal");
+    const modalClose = document.getElementById("modalClose");
+
+    function openModal(e) {
+      if (e) e.preventDefault();
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      modal.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    // Attach to all .navbar-cta and any btn-cotizar
+    document.querySelectorAll(".navbar-cta, .open-modal").forEach(el => {
+      el.addEventListener("click", openModal);
+    });
+
+    if (modalClose) modalClose.addEventListener("click", closeModal);
+    if (modal) modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+  </script>
+
+</body>
+</html>
